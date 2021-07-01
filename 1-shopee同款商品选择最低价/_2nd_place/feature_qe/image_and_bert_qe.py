@@ -1,7 +1,7 @@
 # !/user/bin/python
 # -*- coding:utf-8 -*-
 """
-date：          2021-06-30
+date：          2021-07-01
 Description :
 auther : wcy
 """
@@ -11,6 +11,9 @@ import os
 __all__ = []
 
 # define class
+
+
+# define function
 import gc
 import numpy as np
 import faiss
@@ -57,9 +60,6 @@ bth_D, bth_I = index.search(bth_feats, 60)
 np.save('/tmp/bth_D_qe', bth_D)
 np.save('/tmp/bth_I_qe', bth_I)
 print('end')
-
-# define function
-
 
 # main
 if __name__ == '__main__':
