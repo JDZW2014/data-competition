@@ -3,6 +3,7 @@
 """
 date：          2021-06-30
 Description :
+    提取了图像 和 图像 + 文本的特征
 auther : wcy
 """
 # import modules
