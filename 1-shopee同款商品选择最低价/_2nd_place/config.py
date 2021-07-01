@@ -41,9 +41,9 @@ class Config:
     multi_modal_p_eval = 6.0
 
     # bert
-    bert_vocab_file = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/data_model/author_trained/bert-indo/vocab.txt'
+    bert_vocab_file = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/bert-indo/vocab.txt'
     assert os.path.exists(bert_vocab_file)
-    bert_config_file = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/data_model/author_trained/bert-indo/config.json'
+    bert_config_file = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/bert-indo/config.json'
     assert os.path.exists(bert_config_file)
 
     bert_batch_size = 128
@@ -54,7 +54,7 @@ class Config:
     bert_loss = 'CurricularFace'
 
     # bert 2
-    bert2_pretrained_path = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/data_model/author_trained/bert-multilingual'
+    bert2_pretrained_path = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/bert-multilingual'
     assert os.path.exists(bert2_pretrained_path)
 
     bert2_model_name = 'bert-base-multilingual-uncased'
@@ -65,7 +65,7 @@ class Config:
     bert2_loss = 'CurricularFace'
 
     # bert 3
-    bert3_model_ckpt = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/data_model/author_trained/bert-xlm'
+    bert3_model_ckpt = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/bert-xlm'
     assert os.path.exists(bert3_model_ckpt)
 
     bert3_pretrained_path = 'sentence-transformers/paraphrase-xlm-r-multilingual-v1'
