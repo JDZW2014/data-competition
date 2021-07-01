@@ -70,10 +70,10 @@ def create_model(model_name, bert_vocab_file, bert_config_file, max_len, fc_dim,
     model = MultiModalNet(backbone, bert_model, tokenizer=tokenizer, max_len=max_len, fc_dim=fc_dim)
     model.p = p
 
-    if to_cuda:
-        model = model.to('cuda')
     if model_ckpt is not None:
         model.load_state_dict(model_ckpt, strict=False)
+    if to_cuda:
+        model = model.to('cuda')
     if if_train is False:
         model.train(False)
     return model

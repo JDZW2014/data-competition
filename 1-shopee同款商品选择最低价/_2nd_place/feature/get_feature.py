@@ -17,12 +17,13 @@ from _2nd_place.feature import image_similarity_model
 from _2nd_place.feature import multi_modal_similarity_model
 from _2nd_place.feature import nlp_similarity_model
 from _2nd_place.utils import load_data, ShopeeDataset, image_transformer, BertDataset
+from _2nd_place.config import Config
 
 __all__ = ["get_image_and_multi_modal_features", "get_nlp_features"]
 
 
 # define function
-def get_image_and_multi_modal_features(config, csv_path, image_dir_path, image_model1_ckpt, image_model2_ckpt,
+def get_image_and_multi_modal_features(config: Config, csv_path, image_dir_path, image_model1_ckpt, image_model2_ckpt,
                                        multi_modal_model_ckpt, to_cuda=False, nrows=None):
     # load data
     df, img_dir = load_data(csv_path=csv_path, image_dir_path=image_dir_path, nrows=nrows)
@@ -44,7 +45,7 @@ def get_image_and_multi_modal_features(config, csv_path, image_dir_path, image_m
     model3 = multi_modal_similarity_model.create_model(
         model_name=config.multi_modal_image_backbone_model,
         bert_vocab_file=config.bert_vocab_file, bert_config_file=config.bert_config_file,
-        max_len=config.text_max_len, fc_dim=config.multi_modal_image_fc_dim, p=config.multi_modal_image_p_eval,
+        max_len=config.multi_modal_text_max_len, fc_dim=config.multi_modal_image_fc_dim, p=config.multi_modal_p_eval,
         to_cuda=to_cuda, model_ckpt=multi_modal_model_ckpt, if_train=False)
 
     img_feats1 = []
@@ -54,18 +55,36 @@ def get_image_and_multi_modal_features(config, csv_path, image_dir_path, image_m
     img_ws = []
     st_sizes = []
 
-    transform = image_transformer(image_size=config.image_size)
+    transform = image_transformer(image_size=config.test_size)
     for batch in tqdm(data_loader, total=len(data_loader), miniters=None, ncols=55):
         img, title, h, w, st_size = list(zip(*batch))
-        img = torch.cat([transform(x.to('cuda').float() / 255)[None] for x in img], axis=0)
+        if to_cuda:
+            img = torch.cat([transform(x.to('cuda').float() / 255)[None] for x in img], axis=0)
+        else:
+            img = torch.cat([transform(x.float() / 255)[None] for x in img], axis=0)
+
         title = list(title)
         with torch.no_grad():
+            # feature 1
             feats_minibatch1 = model1.extract_feat(img)
-            img_feats1.append(feats_minibatch1.cpu().numpy())
+            if to_cuda:
+                img_feats1.append(feats_minibatch1.cpu().numpy())
+            else:
+                img_feats1.append(feats_minibatch1.numpy())
+
+            # feature 2
             feats_minibatch2 = model2.extract_feat(img)
-            img_feats2.append(feats_minibatch2.cpu().numpy())
+            if to_cuda:
+                img_feats2.append(feats_minibatch2.cpu().numpy())
+            else:
+                img_feats2.append(feats_minibatch2.numpy())
+            # feature 3
             feats_minibatch3 = model3.extract_feat(img, title)
-            mm_feats.append(feats_minibatch3.cpu().numpy())
+            if to_cuda:
+                mm_feats.append(feats_minibatch3.cpu().numpy())
+            else:
+                mm_feats.append(feats_minibatch3.cpu().numpy())
+
         img_hs.extend(list(h))
         img_ws.extend(list(w))
         st_sizes.extend(list(st_size))
@@ -90,6 +109,10 @@ def get_image_and_multi_modal_features(config, csv_path, image_dir_path, image_m
     img_feats /= np.linalg.norm(img_feats, 2, axis=1, keepdims=True)
     np.save(os.path.join(config.save_dir, 'img_feats'), img_feats)
 
+    joblib.dump([st_sizes, img_hs, img_ws], os.path.join(config.save_dir, 'lyk_img_meta_data.pkl'))
+
+
+def image_knn_search(to_cuda, config, img_feats, mm_feats):
     # user Fasis to get knn result
     if to_cuda:
         res = faiss.StandardGpuResources()
@@ -101,7 +124,6 @@ def get_image_and_multi_modal_features(config, csv_path, image_dir_path, image_m
         pass
 
     joblib.dump([similarities_img, indexes_img], os.path.join(config.save_dir, 'lyk_img_data.pkl'))
-    joblib.dump([st_sizes, img_hs, img_ws], os.path.join(config.save_dir, 'lyk_img_meta_data.pkl'))
 
     if to_cuda:
         res = faiss.StandardGpuResources()
@@ -115,7 +137,7 @@ def get_image_and_multi_modal_features(config, csv_path, image_dir_path, image_m
     joblib.dump([similarities_mm, indexes_mm], os.path.join(config.save_dir, 'lyk_mm_data.pkl'))
 
 
-def get_nlp_features(config, csv_path, image_dir_path, to_cuda, nrows=None):
+def get_nlp_features(config: Config, csv_path, image_dir_path, to_cuda, bert_model_ckpt, bert2_model_ckpt, nrows=None):
     # load data
     df, img_dir = load_data(csv_path=csv_path, image_dir_path=image_dir_path, nrows=nrows)
     data_loaders = DataLoader(BertDataset(df=df),
@@ -125,16 +147,16 @@ def get_nlp_features(config, csv_path, image_dir_path, to_cuda, nrows=None):
     # get model
     model1 = nlp_similarity_model.create_model_1(
         vocab_file_path=config.bert_vocab_file, bert_config_file=config.bert_config_file,
-        max_len=config.text_max_len, fc_dim=config.bert_fc_dim, simple_mean=True,
-        to_cuda=to_cuda, model_ckpt=config.bert_model_ckpt, if_train=False)
+        max_len=config.bert_max_len, fc_dim=config.bert_fc_dim, simple_mean=True,
+        to_cuda=to_cuda, model_ckpt=bert_model_ckpt, if_train=False)
 
     model2 = nlp_similarity_model.create_model_2(pretrained_path=config.bert2_pretrained_path,
-                                                 max_len=config.text_max_len, fc_dim=config.bert2_fc_dim,
+                                                 max_len=config.bert2_max_len, fc_dim=config.bert2_fc_dim,
                                                  simple_mean=False,
-                                                 to_cuda=to_cuda, model_ckpt=config.bert2_model_ckpt, if_train=False)
+                                                 to_cuda=to_cuda, model_ckpt=bert2_model_ckpt, if_train=False)
 
     model3 = nlp_similarity_model.create_model_2(pretrained_path=config.bert3_pretrained_path,
-                                                 max_len=config.text_max_len, fc_dim=config.bert3_fc_dim,
+                                                 max_len=config.bert3_max_len, fc_dim=config.bert3_fc_dim,
                                                  simple_mean=False,
                                                  to_cuda=to_cuda, model_ckpt=config.bert3_model_ckpt, if_train=False)
 
@@ -166,15 +188,14 @@ def get_nlp_features(config, csv_path, image_dir_path, to_cuda, nrows=None):
     bert_feats /= np.linalg.norm(bert_feats, 2, axis=1, keepdims=True)
     np.save(os.path.join(config.save_dir, 'bert_feats'), bert_feats)
 
+
+def nlp_knn_search(to_cuda, config, bert_feats1):
+    index_bert = faiss.IndexFlatIP(config.bert_fc_dim)
     if to_cuda:
         res = faiss.StandardGpuResources()
-        index_bert = faiss.IndexFlatIP(config.bert_fc_dim)
         index_bert = faiss.index_cpu_to_gpu(res, 0, index_bert)
-        index_bert.add(bert_feats1)
-        similarities_bert, indexes_bert = index_bert.search(bert_feats1, config.k)
-    else:
-        pass
-
+    index_bert.add(bert_feats1)
+    similarities_bert, indexes_bert = index_bert.search(bert_feats1, config.k)
     joblib.dump([similarities_bert, indexes_bert], os.path.join(config.save_dir, 'lyk_bert_data.pkl'))
 
 
