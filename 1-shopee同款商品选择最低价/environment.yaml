@@ -51,6 +51,7 @@ dependencies:
   - contextlib2=0.6.0.post1=py_0
   - cpuonly=1.0=0
   - cryptography=2.8=py37h1ba5d50_0
+  - cudatoolkit=10.2.89=hfd86e86_1
   - curl=7.68.0=hbc83047_0
   - cycler=0.10.0=py37_0
   - cython=0.29.15=py37he6710b0_0
@@ -67,6 +68,7 @@ dependencies:
   - et_xmlfile=1.0.1=py37_0
   - expat=2.2.6=he6710b0_0
   - faiss-cpu=1.7.1=py3.7_h2a577fa_1_cpu
+  - faiss-gpu=1.6.3=py37h1a5d453_0
   - fastcache=1.1.0=py37h7b6447c_0
   - ffmpeg=4.2.2=h20bf706_0
   - filelock=3.0.12=py_0
