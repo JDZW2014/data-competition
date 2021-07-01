@@ -6,6 +6,7 @@ Description :
 auther : wcy
 """
 # import modules
+import os
 import pandas as pd
 
 
@@ -14,10 +15,13 @@ __all__ = ["Config"]
 
 # config
 class Config:
+    # save dir
+    save_dir = ""
+    assert os.path.exists(save_dir)
+    assert len(os.listdir(save_dir)) == 0
 
     k = 50
     conf_th = 0.7
-    DEBUG = len(pd.read_csv('../input/shopee-product-matching/test.csv')) == 3
 
     NUM_CLASSES = 11014
     NUM_WORKERS = 2
@@ -46,3 +50,17 @@ class Config:
     bert_p_eval = ''
     bert_batch_size = ''
     bert_model_ckpt = ''
+
+    bert2_pretrained_path = ''
+    bert2_model_ckpt = ''
+    bert2_fc_dim = ''
+
+    bert3_pretrained_path = ''
+    bert3_model_ckpt = ''
+    bert3_fc_dim = ''
+
+    def __init__(self, data_path, **kwargs):
+        self.data_path = data_path
+        self.DEBUG = len(pd.read_csv(data_path)) == 3
+        for k, v in kwargs:
+            self.__setattr__(k, v)

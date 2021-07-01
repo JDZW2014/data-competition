@@ -6,16 +6,8 @@ Description :
 auther : wcy
 """
 # import modules
-from _2nd_place.config import k
-from _2nd_place.utils import load_data
-import faiss
-import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
-from _2nd_place.utils import BertDataset
-from tqdm import tqdm
-import joblib
 from transformers import BertConfig, BertModel, BertTokenizerFast
 from transformers import AutoTokenizer, AutoModel, AutoConfig
 
@@ -80,11 +72,19 @@ def create_model_1(vocab_file_path, bert_config_file, max_len, fc_dim,
     return model
 
 
-def create_model_2(pretrained_path, max_len, fc_dim, simple_mean=False):
+def create_model_2(pretrained_path, max_len, fc_dim,
+                   to_cuda=False, model_ckpt=None, if_train=False, simple_mean=False):
     tokenizer = AutoTokenizer.from_pretrained(pretrained_path)
     bert_config = AutoConfig.from_pretrained(pretrained_path)
     bert_model = AutoModel.from_config(bert_config)
     model = BertNet(bert_model, tokenizer=tokenizer, max_len=max_len, simple_mean=simple_mean, fc_dim=fc_dim)
+
+    if to_cuda:
+        model = model.to('cuda')
+    if model_ckpt is not None:
+        model.load_state_dict(model_ckpt, strict=False)
+    if if_train is False:
+        model.train(False)
     return model
 
 
