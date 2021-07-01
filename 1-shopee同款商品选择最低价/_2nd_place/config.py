@@ -65,18 +65,19 @@ class Config:
     bert2_loss = 'CurricularFace'
 
     # bert 3
-    bert3_model_ckpt = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/bert-xlm'
-    assert os.path.exists(bert3_model_ckpt)
+    bert3_pretrained_path = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/bert-xlm'
+    assert os.path.exists(bert3_pretrained_path)
 
-    bert3_pretrained_path = 'sentence-transformers/paraphrase-xlm-r-multilingual-v1'
+    bert3_model_name = 'sentence-transformers/paraphrase-xlm-r-multilingual-v1'
     bert3_max_len = 64
     bert3_fc_dim = 256
     bert3_s = 30
     bert3_margin = 0.5
     bert3_loss = 'CurricularFace'
 
-    def __init__(self, data_path, save_dir):
+    def __init__(self, data_path, image_dir_path, save_dir):
         self.data_path = data_path
+        self.image_dir_path = image_dir_path
         self.save_dir = save_dir
         assert os.path.exists(save_dir)
         assert len(os.listdir(save_dir)) == 0

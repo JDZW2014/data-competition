@@ -23,10 +23,10 @@ __all__ = ["get_image_and_multi_modal_features", "get_nlp_features"]
 
 
 # define function
-def get_image_and_multi_modal_features(config: Config, csv_path, image_dir_path, image_model1_ckpt, image_model2_ckpt,
+def get_image_and_multi_modal_features(logger, config: Config, image_model1_ckpt, image_model2_ckpt,
                                        multi_modal_model_ckpt, to_cuda=False, nrows=None):
     # load data
-    df, img_dir = load_data(csv_path=csv_path, image_dir_path=image_dir_path, nrows=nrows)
+    df, img_dir = load_data(csv_path=config.data_path, image_dir_path=config.image_dir_path, nrows=nrows)
     dataset = ShopeeDataset(df=df, img_dir=img_dir, transform=None)
     data_loader = DataLoader(dataset, batch_size=8, shuffle=False,
                              drop_last=False, pin_memory=True, num_workers=config.NUM_WORKERS, collate_fn=lambda x: x)
@@ -112,7 +112,7 @@ def get_image_and_multi_modal_features(config: Config, csv_path, image_dir_path,
     joblib.dump([st_sizes, img_hs, img_ws], os.path.join(config.save_dir, 'lyk_img_meta_data.pkl'))
 
 
-def image_knn_search(to_cuda, config, img_feats, mm_feats):
+def image_knn_search(logger, to_cuda, config, img_feats, mm_feats):
     # user Fasis to get knn result
     if to_cuda:
         res = faiss.StandardGpuResources()
@@ -137,9 +137,9 @@ def image_knn_search(to_cuda, config, img_feats, mm_feats):
     joblib.dump([similarities_mm, indexes_mm], os.path.join(config.save_dir, 'lyk_mm_data.pkl'))
 
 
-def get_nlp_features(config: Config, csv_path, image_dir_path, to_cuda, bert_model_ckpt, bert2_model_ckpt, nrows=None):
+def get_nlp_features(logger, config: Config, bert_model_ckpt, bert2_model_ckpt, bert3_model_ckpt, to_cuda=False, nrows=None):
     # load data
-    df, img_dir = load_data(csv_path=csv_path, image_dir_path=image_dir_path, nrows=nrows)
+    df, img_dir = load_data(csv_path=config.data_path, image_dir_path=config.image_dir_path, nrows=nrows)
     data_loaders = DataLoader(BertDataset(df=df),
                               batch_size=config.bert_batch_size, shuffle=False,
                               drop_last=False, pin_memory=True, num_workers=config.NUM_WORKERS)
@@ -158,7 +158,7 @@ def get_nlp_features(config: Config, csv_path, image_dir_path, to_cuda, bert_mod
     model3 = nlp_similarity_model.create_model_2(pretrained_path=config.bert3_pretrained_path,
                                                  max_len=config.bert3_max_len, fc_dim=config.bert3_fc_dim,
                                                  simple_mean=False,
-                                                 to_cuda=to_cuda, model_ckpt=config.bert3_model_ckpt, if_train=False)
+                                                 to_cuda=to_cuda, model_ckpt=bert3_model_ckpt, if_train=False)
 
     bert_feats1 = []
     bert_feats2 = []
