@@ -7,8 +7,8 @@ ARG PROJECT_DIR=/2021-top-data-competition
 COPY ./ $PROJECT_DIR
 ENV PYTHONPATH="${PYTHONPATH}:$PROJECT_DIR/1-shopee-goods-match-competition"
 
-RUN $CONDA install pytorch torchvision torchaudio cpuonly -c pytorch
-RUN $CONDA install -c pytorch faiss-gpu
+RUN $CONDA install --yes pytorch torchvision torchaudio cpuonly -c pytorch
+RUN $CONDA install --yes -c pytorch faiss-gpu
 
 RUN $PIP install pandas
 RUN $PIP install transformers
