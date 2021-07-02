@@ -10,6 +10,7 @@ auther : wcy
 import timm
 from _2nd_place.utils import gem
 import torch.nn as nn
+import logging
 
 __all__ = ["ShopeeNet", "create_model", "train_model"]
 
@@ -55,6 +56,7 @@ class ShopeeNet(nn.Module):
 
 # define function
 def create_model(model_name, pretrained, fc_dim, p, to_cuda=False, model_ckpt=None, if_train=False):
+    logging.info("model_name is {}".format(model_name))
     backbone = timm.create_model(model_name=model_name, pretrained=pretrained)
     model = ShopeeNet(backbone, fc_dim=fc_dim)
     model.p = p

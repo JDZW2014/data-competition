@@ -35,16 +35,24 @@ class BertNet(nn.Module):
         nn.init.constant_(self.bn.weight, 1)
         nn.init.constant_(self.bn.bias, 0)
 
-    def extract_feat(self, x):
+    def extract_feat(self, x, to_cuda=False):
         tokenizer_output = self.tokenizer(x, truncation=True, padding=True, max_length=self.max_len)
         if 'token_type_ids' in tokenizer_output:
-            input_ids = torch.LongTensor(tokenizer_output['input_ids']).to('cuda')
-            token_type_ids = torch.LongTensor(tokenizer_output['token_type_ids']).to('cuda')
-            attention_mask = torch.LongTensor(tokenizer_output['attention_mask']).to('cuda')
+            input_ids = torch.LongTensor(tokenizer_output['input_ids'])
+            token_type_ids = torch.LongTensor(tokenizer_output['token_type_ids'])
+            attention_mask = torch.LongTensor(tokenizer_output['attention_mask'])
+            if to_cuda:
+                input_ids = input_ids.to('cuda')
+                token_type_ids = token_type_ids.to('cuda')
+                attention_mask = attention_mask.to('cuda')
+
             x = self.bert_model(input_ids=input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask)
         else:
-            input_ids = torch.LongTensor(tokenizer_output['input_ids']).to('cuda')
-            attention_mask = torch.LongTensor(tokenizer_output['attention_mask']).to('cuda')
+            input_ids = torch.LongTensor(tokenizer_output['input_ids'])
+            attention_mask = torch.LongTensor(tokenizer_output['attention_mask'])
+            if to_cuda:
+                input_ids = input_ids.to('cuda')
+                attention_mask = attention_mask.to('cuda')
             x = self.bert_model(input_ids=input_ids, attention_mask=attention_mask)
         if self.simple_mean:
             x = x.last_hidden_state.mean(dim=1)
@@ -74,6 +82,7 @@ def create_model_1(vocab_file_path, bert_config_file, max_len, fc_dim,
 
 def create_model_2(pretrained_path, max_len, fc_dim,
                    to_cuda=False, model_ckpt=None, if_train=False, simple_mean=False):
+    print("--", pretrained_path, "--")
     tokenizer = AutoTokenizer.from_pretrained(pretrained_path)
     bert_config = AutoConfig.from_pretrained(pretrained_path)
     bert_model = AutoModel.from_config(bert_config)

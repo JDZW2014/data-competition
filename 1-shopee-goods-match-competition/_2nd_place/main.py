@@ -11,18 +11,22 @@ from _2nd_place.config import Config
 from _2nd_place.utils import load_author_pretrained_model_ckpt
 import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
 __all__ = []
 
 
 # define function
 def get_feature_from_pretrained_model(config: Config, nrows):
     logging.info(" -- load image model and multi modal model to get feature -- ")
-    image_model1_ckpt = load_author_pretrained_model_ckpt(config.image1_trained_moel_path)
-    image_model2_ckpt = load_author_pretrained_model_ckpt(config.image2_trained_model_path)
-    multi_modal_model_ckpt = load_author_pretrained_model_ckpt(config.multi_modal_trained_model_path)
-    get_image_and_multi_modal_features(config=config, image_model1_ckpt=image_model1_ckpt,
-                                       image_model2_ckpt=image_model2_ckpt,
-                                       multi_modal_model_ckpt=multi_modal_model_ckpt, to_cuda=False, nrows=None)
+    # image_model1_ckpt = load_author_pretrained_model_ckpt(config.image1_trained_moel_path)
+    # image_model2_ckpt = load_author_pretrained_model_ckpt(config.image2_trained_model_path)
+    # multi_modal_model_ckpt = load_author_pretrained_model_ckpt(config.multi_modal_trained_model_path)
+    # get_image_and_multi_modal_features(config=config, image_model1_ckpt=image_model1_ckpt,
+    #                                    image_model2_ckpt=image_model2_ckpt,
+    #                                    multi_modal_model_ckpt=multi_modal_model_ckpt, to_cuda=False, nrows=None)
 
     logging.info(" -- load bert model to get feature -- ")
     bert_model_ckpt = load_author_pretrained_model_ckpt(config.bert_trained_model_path)

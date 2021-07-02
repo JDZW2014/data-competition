@@ -12,5 +12,7 @@ RUN $CONDA install --yes -c pytorch faiss-gpu
 
 RUN $PIP install pandas
 RUN $PIP install transformers
-RUN $PIP install timm
+RUN $PIP install install timm==0.4.9
 RUN $PIP install editdistance
+RUN $PIP install sentencepiece==0.1.96
+

@@ -38,15 +38,21 @@ class MultiModalNet(nn.Module):
         nn.init.constant_(self.bn.weight, 1)
         nn.init.constant_(self.bn.bias, 0)
 
-    def extract_feat(self, img, title):
+    def extract_feat(self, img, title, to_cuda=False):
         batch_size = img.shape[0]
         img = self.backbone.forward_features(img)
         img = gem(img, p=self.p).view(batch_size, -1)
 
         tokenizer_output = self.tokenizer(title, truncation=True, padding=True, max_length=self.max_len)
-        input_ids = torch.LongTensor(tokenizer_output['input_ids']).to('cuda')
-        token_type_ids = torch.LongTensor(tokenizer_output['token_type_ids']).to('cuda')
-        attention_mask = torch.LongTensor(tokenizer_output['attention_mask']).to('cuda')
+        input_ids = torch.LongTensor(tokenizer_output['input_ids'])
+        token_type_ids = torch.LongTensor(tokenizer_output['token_type_ids'])
+        attention_mask = torch.LongTensor(tokenizer_output['attention_mask'])
+
+        if to_cuda:
+            input_ids = input_ids.to('cuda')
+            token_type_ids = token_type_ids.to('cuda')
+            attention_mask = attention_mask.to('cuda')
+
         title = self.bert_model(input_ids=input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask)
         # x = x.last_hidden_state.sum(dim=1) / attention_mask.sum(dim=1, keepdims=True)
         title = title.last_hidden_state.mean(dim=1)
