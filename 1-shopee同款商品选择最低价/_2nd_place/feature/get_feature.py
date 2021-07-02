@@ -36,17 +36,20 @@ def get_image_and_multi_modal_features(logger, config: Config, image_model1_ckpt
         model_name=config.image_backbone_model_1, pretrained=False,
         fc_dim=config.image_feature_model1_fc_dim, p=config.image_feature_model1_p_eval,
         to_cuda=to_cuda, model_ckpt=image_model1_ckpt, if_train=False)
+    del image_model1_ckpt
 
     model2 = image_similarity_model.create_model(
         model_name=config.image_backbone_model_2, pretrained=False,
         fc_dim=config.image_feature_model2_fc_dim, p=config.image_feature_model2_p_eval,
         to_cuda=to_cuda, model_ckpt=image_model2_ckpt, if_train=False)
+    del image_model2_ckpt
 
     model3 = multi_modal_similarity_model.create_model(
         model_name=config.multi_modal_image_backbone_model,
         bert_vocab_file=config.bert_vocab_file, bert_config_file=config.bert_config_file,
         max_len=config.multi_modal_text_max_len, fc_dim=config.multi_modal_image_fc_dim, p=config.multi_modal_p_eval,
         to_cuda=to_cuda, model_ckpt=multi_modal_model_ckpt, if_train=False)
+    del multi_modal_model_ckpt
 
     img_feats1 = []
     img_feats2 = []
@@ -149,16 +152,19 @@ def get_nlp_features(logger, config: Config, bert_model_ckpt, bert2_model_ckpt, 
         vocab_file_path=config.bert_vocab_file, bert_config_file=config.bert_config_file,
         max_len=config.bert_max_len, fc_dim=config.bert_fc_dim, simple_mean=True,
         to_cuda=to_cuda, model_ckpt=bert_model_ckpt, if_train=False)
+    del bert_model_ckpt
 
     model2 = nlp_similarity_model.create_model_2(pretrained_path=config.bert2_pretrained_path,
                                                  max_len=config.bert2_max_len, fc_dim=config.bert2_fc_dim,
                                                  simple_mean=False,
                                                  to_cuda=to_cuda, model_ckpt=bert2_model_ckpt, if_train=False)
+    del bert2_model_ckpt
 
     model3 = nlp_similarity_model.create_model_2(pretrained_path=config.bert3_pretrained_path,
                                                  max_len=config.bert3_max_len, fc_dim=config.bert3_fc_dim,
                                                  simple_mean=False,
                                                  to_cuda=to_cuda, model_ckpt=bert3_model_ckpt, if_train=False)
+    del bert3_model_ckpt
 
     bert_feats1 = []
     bert_feats2 = []

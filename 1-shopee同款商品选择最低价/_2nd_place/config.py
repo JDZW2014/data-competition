@@ -23,15 +23,24 @@ class Config:
     test_size = 384
 
     # image model backbone
+    image1_trained_moel_path = "/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/v45.pth"
+    assert os.path.exists(image1_trained_moel_path)
+
     image_backbone_model_1 = 'vit_deit_base_distilled_patch16_384'
     image_feature_model1_fc_dim = 768
     image_feature_model1_p_eval = 6.0
+
+    image2_trained_model_path = "/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/v34.pth"
+    assert os.path.exists(image2_trained_model_path)
 
     image_backbone_model_2 = 'dm_nfnet_f0'
     image_feature_model2_fc_dim = 256
     image_feature_model2_p_eval = 6.0
 
     # multi modal
+    multi_modal_trained_model_path = "/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/v79.pth"
+    assert os.path.exists(multi_modal_trained_model_path)
+
     multi_modal_image_backbone_model = 'dm_nfnet_f0'
     multi_modal_text_max_len = 64
     multi_modal_image_fc_dim = 1024
@@ -45,6 +54,7 @@ class Config:
     assert os.path.exists(bert_vocab_file)
     bert_config_file = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/bert-indo/config.json'
     assert os.path.exists(bert_config_file)
+    bert_trained_model_path = '/2_myself_learn/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/v75.pth'
 
     bert_batch_size = 128
     bert_max_len = 64
@@ -56,6 +66,8 @@ class Config:
     # bert 2
     bert2_pretrained_path = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/bert-multilingual'
     assert os.path.exists(bert2_pretrained_path)
+    bert2_trained_model_path = '/2_myself_learn/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/v102.pth'
+    assert os.path.exists(bert2_trained_model_path)
 
     bert2_model_name = 'bert-base-multilingual-uncased'
     bert2_max_len = 64
@@ -67,6 +79,8 @@ class Config:
     # bert 3
     bert3_pretrained_path = '/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/bert-xlm'
     assert os.path.exists(bert3_pretrained_path)
+    bert3_trained_model_path = '/2_myself_learn/2021-top-data-competition/1-shopee同款商品选择最低价/_2nd_place/pretrained_model/author_trained/v103.pth'
+    assert os.path.exists(bert3_trained_model_path)
 
     bert3_model_name = 'sentence-transformers/paraphrase-xlm-r-multilingual-v1'
     bert3_max_len = 64

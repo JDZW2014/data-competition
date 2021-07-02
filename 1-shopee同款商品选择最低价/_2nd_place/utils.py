@@ -11,12 +11,12 @@ from torchvision.io import read_image
 import pandas as pd
 from pathlib import Path
 import torch.nn.functional as F
-import torch
 from torchvision.transforms import Resize, Normalize, Compose, CenterCrop
 from PIL import Image
+import torch
 
 
-__all__ = ["ShopeeDataset", "load_data", "gem", "BertDataset", "image_transformer"]
+__all__ = ["ShopeeDataset", "load_data", "gem", "BertDataset", "image_transformer", "load_author_pretrained_model_ckpt"]
 
 
 # define class
@@ -83,4 +83,10 @@ def image_transformer(image_size, expand_size=32,
         CenterCrop((image_size, image_size)),
         Normalize(mean=mean, std=std),
     ])
+
+
+def load_author_pretrained_model_ckpt(model_ckpt_path, map_location=torch.device('cpu')):
+    checkpoint = torch.load(model_ckpt_path, map_location=map_location)
+    params = checkpoint['model']
+    return params
 
