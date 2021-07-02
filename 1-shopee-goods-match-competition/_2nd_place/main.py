@@ -15,7 +15,7 @@ __all__ = []
 
 
 # define function
-def get_feature_from_pretrained_model(config: Config):
+def get_feature_from_pretrained_model(config: Config, nrows):
     logging.info(" -- load image model and multi modal model to get feature -- ")
     image_model1_ckpt = load_author_pretrained_model_ckpt(config.image1_trained_moel_path)
     image_model2_ckpt = load_author_pretrained_model_ckpt(config.image2_trained_model_path)
@@ -30,12 +30,21 @@ def get_feature_from_pretrained_model(config: Config):
     bert3_model_ckpt = load_author_pretrained_model_ckpt(config.bert3_trained_model_path)
 
     get_nlp_features(config=config, bert_model_ckpt=bert_model_ckpt, bert2_model_ckpt=bert2_model_ckpt,
-                     bert3_model_ckpt=bert3_model_ckpt, nrows=None)
+                     bert3_model_ckpt=bert3_model_ckpt, nrows=nrows)
 
 
 def main():
-    config = Config(data_path="", image_dir_path="", save_dir="temp")
-    get_feature_from_pretrained_model(config=config)
+    config = Config(
+        data_path="/2021-top-data-competition/1-shopee-goods-match-competition/shopee-product-matching/test.csv",
+        image_dir_path="/2021-top-data-competition/1-shopee-goods-match-competition/shopee-product-matching/test_images",
+        save_dir="temp")
+
+    # config = Config(
+    #     data_path="/2021-top-data-competition/1-shopee-goods-match-competition/shopee-product-matching/train.csv",
+    #     image_dir_path="/2021-top-data-competition/1-shopee-goods-match-competition/shopee-product-matching/train_images",
+    #     save_dir="temp")
+
+    get_feature_from_pretrained_model(config=config, nrows=100)
 
 
 # main
