@@ -18,32 +18,38 @@ from _2nd_place.feature import multi_modal_similarity_model
 from _2nd_place.feature import nlp_similarity_model
 from _2nd_place.utils import load_data, ShopeeDataset, image_transformer, BertDataset
 from _2nd_place.config import Config
+import logging
 
 __all__ = ["get_image_and_multi_modal_features", "get_nlp_features"]
 
 
 # define function
-def get_image_and_multi_modal_features(logger, config: Config, image_model1_ckpt, image_model2_ckpt,
-                                       multi_modal_model_ckpt, to_cuda=False, nrows=None):
+def get_image_and_multi_modal_features(config: Config, image_model1_ckpt, image_model2_ckpt, multi_modal_model_ckpt,
+                                       to_cuda=False, nrows=None):
     # load data
+    logging.info(" -- load data -- ")
     df, img_dir = load_data(csv_path=config.data_path, image_dir_path=config.image_dir_path, nrows=nrows)
+    logging.info("df shape is {}".format(df.shape))
     dataset = ShopeeDataset(df=df, img_dir=img_dir, transform=None)
     data_loader = DataLoader(dataset, batch_size=8, shuffle=False,
                              drop_last=False, pin_memory=True, num_workers=config.NUM_WORKERS, collate_fn=lambda x: x)
 
     # get model
+    logging.info(" -- load model1 --")
     model1 = image_similarity_model.create_model(
         model_name=config.image_backbone_model_1, pretrained=False,
         fc_dim=config.image_feature_model1_fc_dim, p=config.image_feature_model1_p_eval,
         to_cuda=to_cuda, model_ckpt=image_model1_ckpt, if_train=False)
     del image_model1_ckpt
 
+    logging.info(" -- load model2 -- ")
     model2 = image_similarity_model.create_model(
         model_name=config.image_backbone_model_2, pretrained=False,
         fc_dim=config.image_feature_model2_fc_dim, p=config.image_feature_model2_p_eval,
         to_cuda=to_cuda, model_ckpt=image_model2_ckpt, if_train=False)
     del image_model2_ckpt
 
+    logging.info(" -- load model3 -- ")
     model3 = multi_modal_similarity_model.create_model(
         model_name=config.multi_modal_image_backbone_model,
         bert_vocab_file=config.bert_vocab_file, bert_config_file=config.bert_config_file,
@@ -51,6 +57,7 @@ def get_image_and_multi_modal_features(logger, config: Config, image_model1_ckpt
         to_cuda=to_cuda, model_ckpt=multi_modal_model_ckpt, if_train=False)
     del multi_modal_model_ckpt
 
+    logging.info(" -- extract feature -- ")
     img_feats1 = []
     img_feats2 = []
     mm_feats = []
@@ -92,6 +99,7 @@ def get_image_and_multi_modal_features(logger, config: Config, image_model1_ckpt
         img_ws.extend(list(w))
         st_sizes.extend(list(st_size))
 
+    logging.info(" -- normalize and concat feature -- ")
     # image model 1 feature
     img_feats1 = np.concatenate(img_feats1)
     img_feats1 /= np.linalg.norm(img_feats1, 2, axis=1, keepdims=True)
@@ -140,32 +148,38 @@ def image_knn_search(logger, to_cuda, config, img_feats, mm_feats):
     joblib.dump([similarities_mm, indexes_mm], os.path.join(config.save_dir, 'lyk_mm_data.pkl'))
 
 
-def get_nlp_features(logger, config: Config, bert_model_ckpt, bert2_model_ckpt, bert3_model_ckpt, to_cuda=False, nrows=None):
+def get_nlp_features(config: Config, bert_model_ckpt, bert2_model_ckpt, bert3_model_ckpt, to_cuda=False, nrows=None):
     # load data
+    logging.info(" -- load data -- ")
     df, img_dir = load_data(csv_path=config.data_path, image_dir_path=config.image_dir_path, nrows=nrows)
+    logging.info("df shape is {}".format(df.shape))
     data_loaders = DataLoader(BertDataset(df=df),
                               batch_size=config.bert_batch_size, shuffle=False,
                               drop_last=False, pin_memory=True, num_workers=config.NUM_WORKERS)
 
     # get model
+    logging.info(" -- load model1 -- ")
     model1 = nlp_similarity_model.create_model_1(
         vocab_file_path=config.bert_vocab_file, bert_config_file=config.bert_config_file,
         max_len=config.bert_max_len, fc_dim=config.bert_fc_dim, simple_mean=True,
         to_cuda=to_cuda, model_ckpt=bert_model_ckpt, if_train=False)
     del bert_model_ckpt
 
+    logging.info(" -- load model2 -- ")
     model2 = nlp_similarity_model.create_model_2(pretrained_path=config.bert2_pretrained_path,
                                                  max_len=config.bert2_max_len, fc_dim=config.bert2_fc_dim,
                                                  simple_mean=False,
                                                  to_cuda=to_cuda, model_ckpt=bert2_model_ckpt, if_train=False)
     del bert2_model_ckpt
 
+    logging.info(" -- load model3 -- ")
     model3 = nlp_similarity_model.create_model_2(pretrained_path=config.bert3_pretrained_path,
                                                  max_len=config.bert3_max_len, fc_dim=config.bert3_fc_dim,
                                                  simple_mean=False,
                                                  to_cuda=to_cuda, model_ckpt=bert3_model_ckpt, if_train=False)
     del bert3_model_ckpt
 
+    logging.info(" -- extract feature --")
     bert_feats1 = []
     bert_feats2 = []
     bert_feats3 = []
@@ -178,6 +192,7 @@ def get_nlp_features(logger, config: Config, bert_model_ckpt, bert2_model_ckpt, 
             bert_feats_minibatch = model3.extract_feat(title)
             bert_feats3.append(bert_feats_minibatch.cpu().numpy())
 
+    logging.info(" -- normalize and concat feature -- ")
     bert_feats1 = np.concatenate(bert_feats1)
     bert_feats1 /= np.linalg.norm(bert_feats1, 2, axis=1, keepdims=True)
     np.save(os.path.join(config.save_dir, 'bert_feats1'), bert_feats1)
