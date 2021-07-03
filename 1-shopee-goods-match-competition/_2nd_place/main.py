@@ -37,6 +37,10 @@ def get_feature_from_pretrained_model(config: Config, nrows):
                      bert3_model_ckpt=bert3_model_ckpt, nrows=nrows)
 
 
+def fasis_first_recall():
+    pass
+
+
 def main():
     config = Config(
         data_path="/2021-top-data-competition/1-shopee-goods-match-competition/shopee-product-matching/test.csv",
