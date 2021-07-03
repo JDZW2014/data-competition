@@ -9,6 +9,7 @@ ENV PYTHONPATH="${PYTHONPATH}:$PROJECT_DIR/1-shopee-goods-match-competition"
 
 RUN $CONDA install --yes pytorch torchvision torchaudio cpuonly -c pytorch
 RUN $CONDA install --yes -c pytorch faiss-gpu
+RUN $CONDA install protobuf
 
 RUN $PIP install pandas
 RUN $PIP install transformers
