@@ -41,9 +41,12 @@ def get_feature_from_pretrained_model(config: Config, nrows, to_cuda):
 
 
 def fasis_first_recall(to_cuda, config):
-    img_feats = np.load(os.path.join(config.save_dir, config.image_1_and_image_2_concat_feat_save_name))
-    mm_feats = np.load(os.path.join(config.save_dir, config.multi_modal_feat_save_name))
-    bert_feats1 = np.load(config.save_dir, config.bert_feature_save_name)
+    img_feats = np.load(os.path.join(config.save_dir,
+                                     "{}.npy".format(config.image_1_and_image_2_concat_feat_save_name)))
+    mm_feats = np.load(os.path.join(config.save_dir,
+                                    "{}.npy".format(config.multi_modal_feat_save_name)))
+    bert_feats1 = np.load(config.save_dir,
+                          "{}.npy".format(config.bert_feature_save_name))
 
     image_knn_search(to_cuda, config, img_feats, mm_feats)
     nlp_knn_search(to_cuda, config, bert_feats1)
