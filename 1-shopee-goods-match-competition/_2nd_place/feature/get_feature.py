@@ -32,7 +32,7 @@ def get_image_and_multi_modal_features(config: Config, image_model1_ckpt, image_
     df, img_dir = load_data(csv_path=config.data_path, image_dir_path=config.image_dir_path, nrows=nrows)
     logging.info("df shape is {}".format(df.shape))
     dataset = ShopeeDataset(df=df, img_dir=img_dir, transform=None)
-    data_loader = DataLoader(dataset, batch_size=8, shuffle=False,
+    data_loader = DataLoader(dataset, batch_size=config.image_batch_size, shuffle=False,
                              drop_last=False, pin_memory=True, num_workers=config.NUM_WORKERS, collate_fn=lambda x: x)
 
     # get model

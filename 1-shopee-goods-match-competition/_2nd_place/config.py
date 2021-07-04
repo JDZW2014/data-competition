@@ -19,6 +19,7 @@ class Config:
     NUM_CLASSES = 11014
     NUM_WORKERS = 2
     SEED = 0
+    image_batch_size = 2
 
     test_size = 384
 
@@ -62,7 +63,7 @@ class Config:
     assert os.path.exists(bert_config_file)
     bert_trained_model_path = '/2021-top-data-competition/1-shopee-goods-match-competition/_2nd_place/pretrained_model/author_trained/v75.pth'
 
-    bert_batch_size = 128
+    bert_batch_size = 2
     bert_max_len = 64
     bert_fc_dim = 512
     bert_s = 50
