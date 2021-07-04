@@ -137,26 +137,27 @@ def get_image_and_multi_modal_features(config: Config, image_model1_ckpt, image_
 
 
 def image_knn_search(to_cuda, config, img_feats, mm_feats):
-    # user Fasis to get knn result
+    index_img = faiss.IndexFlatIP(config.image_feature_model1_fc_dim + config.image_feature_model2_fc_dim)
     if to_cuda:
         res = faiss.StandardGpuResources()
-        index_img = faiss.IndexFlatIP(config.image_feature_model1_fc_dim + config.image_feature_model2_fc_dim)
         index_img = faiss.index_cpu_to_gpu(res, 0, index_img)
         index_img.add(img_feats)
         similarities_img, indexes_img = index_img.search(img_feats, config.k)  # 这个用的是KNN检索的相似商品
     else:
-        pass
+        index_img.add(img_feats)
+        similarities_img, indexes_img = index_img.search(img_feats, config.k)
 
     joblib.dump([similarities_img, indexes_img], os.path.join(config.save_dir, config.lyk_img_data))
 
+    index_mm = faiss.IndexFlatIP(config.multi_modal_image_fc_dim)
     if to_cuda:
         res = faiss.StandardGpuResources()
-        index_mm = faiss.IndexFlatIP(config.multi_modal_image_fc_dim)
         index_mm = faiss.index_cpu_to_gpu(res, 0, index_mm)
         index_mm.add(mm_feats)
         similarities_mm, indexes_mm = index_mm.search(mm_feats, config.k)
     else:
-        pass
+        index_mm.add(mm_feats)
+        similarities_mm, indexes_mm = index_mm.search(mm_feats, config.k)
 
     joblib.dump([similarities_mm, indexes_mm], os.path.join(config.save_dir, config.lyk_mm_data))
 
@@ -236,8 +237,11 @@ def nlp_knn_search(to_cuda, config, bert_feats1):
     if to_cuda:
         res = faiss.StandardGpuResources()
         index_bert = faiss.index_cpu_to_gpu(res, 0, index_bert)
-    index_bert.add(bert_feats1)
-    similarities_bert, indexes_bert = index_bert.search(bert_feats1, config.k)
+        index_bert.add(bert_feats1)
+        similarities_bert, indexes_bert = index_bert.search(bert_feats1, config.k)
+    else:
+        index_bert.add(bert_feats1)
+        similarities_bert, indexes_bert = index_bert.search(bert_feats1, config.k)
     joblib.dump([similarities_bert, indexes_bert], os.path.join(config.save_dir, config.lyk_bert_data))
 
 

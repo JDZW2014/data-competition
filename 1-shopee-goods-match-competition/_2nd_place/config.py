@@ -110,5 +110,5 @@ class Config:
         self.image_dir_path = image_dir_path
         self.save_dir = save_dir
         assert os.path.exists(save_dir)
-        assert len(os.listdir(save_dir)) == 0
+        # assert len(os.listdir(save_dir)) == 0
 
