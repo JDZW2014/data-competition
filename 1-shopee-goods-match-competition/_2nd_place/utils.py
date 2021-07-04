@@ -14,9 +14,12 @@ import torch.nn.functional as F
 from torchvision.transforms import Resize, Normalize, Compose, CenterCrop
 from PIL import Image
 import torch
+import os
+import numpy as np
 
 
-__all__ = ["ShopeeDataset", "load_data", "gem", "BertDataset", "image_transformer", "load_author_pretrained_model_ckpt"]
+__all__ = ["ShopeeDataset", "load_data", "gem", "BertDataset", "image_transformer",
+           "load_author_pretrained_model_ckpt", "save_model_extracted_feat"]
 
 
 # define class
@@ -89,4 +92,9 @@ def load_author_pretrained_model_ckpt(model_ckpt_path, map_location=torch.device
     checkpoint = torch.load(model_ckpt_path, map_location=map_location)
     params = checkpoint['model']
     return params
+
+
+def save_model_extracted_feat(fs_path, feat):
+    assert not os.path.exists(fs_path)
+    np.save(fs_path, feat)
 

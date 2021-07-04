@@ -18,9 +18,10 @@ from _2nd_place.feature import multi_modal_similarity_model
 from _2nd_place.feature import nlp_similarity_model
 from _2nd_place.utils import load_data, ShopeeDataset, image_transformer, BertDataset
 from _2nd_place.config import Config
+from _2nd_place.utils import save_model_extracted_feat
 import logging
 
-__all__ = ["get_image_and_multi_modal_features", "get_nlp_features"]
+__all__ = ["get_image_and_multi_modal_features", "get_nlp_features", "image_knn_search", "nlp_knn_search"]
 
 
 # define function
@@ -103,27 +104,39 @@ def get_image_and_multi_modal_features(config: Config, image_model1_ckpt, image_
     # image model 1 feature
     img_feats1 = np.concatenate(img_feats1)
     img_feats1 /= np.linalg.norm(img_feats1, 2, axis=1, keepdims=True)
-    np.save(os.path.join(config.save_dir, 'img_feats1'), img_feats1)
+    save_model_extracted_feat(fs_path=os.path.join(config.save_dir, config.image_1_feat_save_name),
+                              feat=img_feats1)
+    # np.save(os.path.join(config.save_dir, config.image_1_feat_save_name), img_feats1)
 
     # image model 2 feature
     img_feats2 = np.concatenate(img_feats2)
     img_feats2 /= np.linalg.norm(img_feats2, 2, axis=1, keepdims=True)
-    np.save(os.path.join(config.save_dir, 'img_feats2'), img_feats2)
+    save_model_extracted_feat(fs_path=os.path.join(config.save_dir, config.image_2_feat_save_name),
+                              feat=img_feats2)
+    # fs = os.path.join(config.save_dir, config.image_2_feat_save_name)
+    # assert not os.path.exists(fs)
+    # np.save(fs, img_feats2)
 
     # multi modal modal feature
     mm_feats = np.concatenate(mm_feats)
     mm_feats /= np.linalg.norm(mm_feats, 2, axis=1, keepdims=True)
-    np.save(os.path.join(config.save_dir, 'mm_feats'), mm_feats)
+    save_model_extracted_feat(fs_path=os.path.join(config.save_dir, config.multi_modal_feat_save_name),
+                              feat=mm_feats)
+    # fs = os.path.join(config.save_dir, config.multi_modal_feat_save_name)
+    # assert not os.path.exists(fs)
+    # np.save(fs, mm_feats)
 
     # concat image model 1 and image model 2 feature
     img_feats = np.concatenate([img_feats1 * 1.0, img_feats2 * 1.0], axis=1)
     img_feats /= np.linalg.norm(img_feats, 2, axis=1, keepdims=True)
-    np.save(os.path.join(config.save_dir, 'img_feats'), img_feats)
+    save_model_extracted_feat(fs_path=os.path.join(config.save_dir, config.image_1_and_image_2_concat_feat_save_name),
+                              feat=img_feats)
+    # np.save(os.path.join(config.save_dir, 'img_feats'), img_feats)
 
-    joblib.dump([st_sizes, img_hs, img_ws], os.path.join(config.save_dir, 'lyk_img_meta_data.pkl'))
+    joblib.dump([st_sizes, img_hs, img_ws], os.path.join(config.save_dir, config.lyk_img_meta_data_save_name))
 
 
-def image_knn_search(logger, to_cuda, config, img_feats, mm_feats):
+def image_knn_search(to_cuda, config, img_feats, mm_feats):
     # user Fasis to get knn result
     if to_cuda:
         res = faiss.StandardGpuResources()
@@ -134,7 +147,7 @@ def image_knn_search(logger, to_cuda, config, img_feats, mm_feats):
     else:
         pass
 
-    joblib.dump([similarities_img, indexes_img], os.path.join(config.save_dir, 'lyk_img_data.pkl'))
+    joblib.dump([similarities_img, indexes_img], os.path.join(config.save_dir, config.lyk_img_data))
 
     if to_cuda:
         res = faiss.StandardGpuResources()
@@ -145,7 +158,7 @@ def image_knn_search(logger, to_cuda, config, img_feats, mm_feats):
     else:
         pass
 
-    joblib.dump([similarities_mm, indexes_mm], os.path.join(config.save_dir, 'lyk_mm_data.pkl'))
+    joblib.dump([similarities_mm, indexes_mm], os.path.join(config.save_dir, config.lyk_mm_data))
 
 
 def get_nlp_features(config: Config, bert_model_ckpt, bert2_model_ckpt, bert3_model_ckpt, to_cuda=False, nrows=None):
@@ -195,19 +208,27 @@ def get_nlp_features(config: Config, bert_model_ckpt, bert2_model_ckpt, bert3_mo
     logging.info(" -- normalize and concat feature -- ")
     bert_feats1 = np.concatenate(bert_feats1)
     bert_feats1 /= np.linalg.norm(bert_feats1, 2, axis=1, keepdims=True)
-    np.save(os.path.join(config.save_dir, 'bert_feats1'), bert_feats1)
+    save_model_extracted_feat(fs_path=os.path.join(config.save_dir, config.bert_feature_save_name),
+                              feat=bert_feats1)
+    # np.save(os.path.join(config.save_dir, 'bert_feats1'), bert_feats1)
 
     bert_feats2 = np.concatenate(bert_feats2)
     bert_feats2 /= np.linalg.norm(bert_feats2, 2, axis=1, keepdims=True)
-    np.save(os.path.join(config.save_dir, 'bert_feats2'), bert_feats2)
+    save_model_extracted_feat(fs_path=os.path.join(config.save_dir, config.bert2_feature_save_name),
+                              feat=bert_feats2)
+    # np.save(os.path.join(config.save_dir, 'bert_feats2'), bert_feats2)
 
     bert_feats3 = np.concatenate(bert_feats3)
     bert_feats3 /= np.linalg.norm(bert_feats3, 2, axis=1, keepdims=True)
-    np.save(os.path.join(config.save_dir, 'bert_feats3'), bert_feats3)
+    save_model_extracted_feat(fs_path=os.path.join(config.save_dir, config.bert3_feature_save_name),
+                              feat=bert_feats3)
+    # np.save(os.path.join(config.save_dir, 'bert_feats3'), bert_feats3)
 
     bert_feats = np.concatenate([bert_feats1, bert_feats2, bert_feats3], axis=1)
     bert_feats /= np.linalg.norm(bert_feats, 2, axis=1, keepdims=True)
-    np.save(os.path.join(config.save_dir, 'bert_feats'), bert_feats)
+    save_model_extracted_feat(fs_path=os.path.join(config.save_dir, config.bert_model_feature_concat_save_name),
+                              feat=bert_feats)
+    # np.save(os.path.join(config.save_dir, 'bert_feats'), bert_feats)
 
 
 def nlp_knn_search(to_cuda, config, bert_feats1):
@@ -217,7 +238,7 @@ def nlp_knn_search(to_cuda, config, bert_feats1):
         index_bert = faiss.index_cpu_to_gpu(res, 0, index_bert)
     index_bert.add(bert_feats1)
     similarities_bert, indexes_bert = index_bert.search(bert_feats1, config.k)
-    joblib.dump([similarities_bert, indexes_bert], os.path.join(config.save_dir, 'lyk_bert_data.pkl'))
+    joblib.dump([similarities_bert, indexes_bert], os.path.join(config.save_dir, config.lyk_bert_data))
 
 
 # main
