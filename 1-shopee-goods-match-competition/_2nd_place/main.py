@@ -66,6 +66,7 @@ def main():
     # get_feature_from_pretrained_model(config=config, nrows=100, to_cuda=False)
     # print("extract feature finish")
     fasis_first_recall(to_cuda=False, config=config)
+    print("fasis recall finish")
 
 
 # main
