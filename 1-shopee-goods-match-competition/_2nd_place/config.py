@@ -17,7 +17,7 @@ class Config:
     conf_th = 0.7
 
     NUM_CLASSES = 11014
-    NUM_WORKERS = 1
+    NUM_WORKERS = 0
     SEED = 0
     image_batch_size = 2
 
