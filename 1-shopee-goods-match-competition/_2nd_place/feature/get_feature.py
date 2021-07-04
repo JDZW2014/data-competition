@@ -169,7 +169,7 @@ def get_nlp_features(config: Config, bert_model_ckpt, bert2_model_ckpt, bert3_mo
     logging.info("df shape is {}".format(df.shape))
     data_loaders = DataLoader(BertDataset(df=df),
                               batch_size=config.bert_batch_size, shuffle=False,
-                              drop_last=False, pin_memory=True, num_workers=config.NUM_WORKERS)
+                              drop_last=False, pin_memory=False, num_workers=config.NUM_WORKERS)
 
     # get model
     logging.info(" -- load model1 -- ")
