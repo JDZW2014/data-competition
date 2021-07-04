@@ -60,8 +60,8 @@ def main():
     #     image_dir_path="/2021-top-data-competition/1-shopee-goods-match-competition/shopee-product-matching/train_images",
     #     save_dir="temp")
 
-    get_feature_from_pretrained_model(config=config, nrows=100)
-    fasis_first_recall(to_cuda, config, img_feats_path, mm_feats_path, bert_feats1_path)
+    get_feature_from_pretrained_model(config=config, nrows=100, to_cuda=False)
+    fasis_first_recall(to_cuda=False, config=config)
 
 
 # main
